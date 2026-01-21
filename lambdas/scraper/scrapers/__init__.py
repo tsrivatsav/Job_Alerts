@@ -53,7 +53,7 @@ SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
     'Citadel': scrape_citadel,
     'Two Sigma': scrape_two_sigma,
     'Point72': scrape_point72,
-    'Renaissance Technologies': scrape_renaissance,
+    'Renaissance Technologies': scrape_rentech,
     'SSI': scrape_ssi,
     'Thinking Machines': scrape_thinking_machines,
     'Perplexity': scrape_perplexity,

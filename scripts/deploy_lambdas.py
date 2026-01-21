@@ -10,6 +10,7 @@ import subprocess
 import os
 import shutil
 import zipfile
+import sys
 
 # Configuration
 REGION = 'us-east-1'
@@ -41,9 +42,47 @@ def create_zip(source_dir: str, output_path: str, include_scrapers: bool = False
     requirements_file = os.path.join(source_dir, 'requirements.txt')
     if os.path.exists(requirements_file):
         print(f"  Installing dependencies from {requirements_file}...")
-        subprocess.run([
-            'pip', 'install', '-r', requirements_file, '-t', package_dir, '--quiet'
-        ], check=True)
+        
+        # Install Linux-compatible packages for Lambda
+        result = subprocess.run([
+            sys.executable, '-m', 'pip', 'install',
+            '-r', requirements_file,
+            '-t', package_dir,
+            '--platform', 'manylinux2014_x86_64',
+            '--implementation', 'cp',
+            '--python-version', '3.9',
+            '--only-binary=:all:',
+            '--upgrade',
+            '--quiet'
+        ], capture_output=True, text=True)
+        
+        # If platform-specific install fails, try without binary constraint
+        # (for pure Python packages)
+        if result.returncode != 0:
+            print(f"  Retrying with fallback for pure Python packages...")
+            subprocess.run([
+                sys.executable, '-m', 'pip', 'install',
+                '-r', requirements_file,
+                '-t', package_dir,
+                '--platform', 'manylinux2014_x86_64',
+                '--implementation', 'cp',
+                '--python-version', '3.9',
+                '--quiet'
+            ], check=False)
+            
+            # Final fallback: install without platform constraints
+            # (pure Python packages will work cross-platform)
+            subprocess.run([
+                sys.executable, '-m', 'pip', 'install',
+                '-r', requirements_file,
+                '-t', package_dir,
+                '--upgrade',
+                '--quiet'
+            ], check=True)
+            
+            # Remove Windows-specific files
+            print(f"  Cleaning up Windows-specific files...")
+            cleanup_windows_files(package_dir)
     
     # Copy lambda function
     lambda_file = os.path.join(source_dir, 'lambda_function.py')
@@ -73,6 +112,17 @@ def create_zip(source_dir: str, output_path: str, include_scrapers: bool = False
     return output_path
 
 
+def cleanup_windows_files(directory: str):
+    """Remove Windows-specific compiled files."""
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            # Remove Windows .pyd files and other platform-specific files
+            if file.endswith('.pyd') or 'win' in file.lower() and file.endswith('.whl'):
+                file_path = os.path.join(root, file)
+                print(f"    Removing: {file}")
+                os.remove(file_path)
+
+
 def function_exists(function_name: str) -> bool:
     """Check if a Lambda function exists."""
     try:
@@ -94,18 +144,15 @@ def deploy_lambda(function_name: str, zip_path: str, role_name: str,
         zip_bytes = f.read()
     
     if function_exists(function_name):
-        # Function exists, update it
         print(f"  Function exists, updating code...")
         lambda_client.update_function_code(
             FunctionName=function_name,
             ZipFile=zip_bytes
         )
         
-        # Wait for update to complete before updating config
         waiter = lambda_client.get_waiter('function_updated')
         waiter.wait(FunctionName=function_name)
         
-        # Update configuration
         lambda_client.update_function_configuration(
             FunctionName=function_name,
             Timeout=timeout,
@@ -114,7 +161,6 @@ def deploy_lambda(function_name: str, zip_path: str, role_name: str,
         )
         print(f"  ✅ Updated function: {function_name}")
     else:
-        # Create new function
         lambda_client.create_function(
             FunctionName=function_name,
             Runtime='python3.9',
