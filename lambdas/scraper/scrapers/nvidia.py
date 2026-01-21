@@ -1,22 +1,29 @@
 from typing import List, Dict, Any
 import requests
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse, urljoin, unquote
+from urllib.parse import urlparse, parse_qs
 import time
 
 def scrape_nvidia(url: str) -> List[Dict[str, str]]:
     """
     Scraper for NVIDIA (Workday).
-    Pagination: Loops until 'jobPostings' list is empty.
+    Pagination: Loops until no new unique jobs are found.
     """
     print(f"[NVIDIA] Scraping: {url}")
     
     session = requests.Session()
     session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
         'Accept': 'application/json',
+        'Accept-Language': 'en-US',
         'Content-Type': 'application/json',
         'Origin': 'https://nvidia.wd5.myworkdayjobs.com',
         'Referer': url,
+        'Sec-Ch-Ua': '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
     })
 
     # 1. Construct API URL
@@ -29,7 +36,6 @@ def scrape_nvidia(url: str) -> List[Dict[str, str]]:
     query_params = parse_qs(parsed_url.query)
     search_text = query_params.get('q', [''])[0]
     
-    # Check if user provided a starting offset in URL, otherwise 0
     current_offset = int(query_params.get('offset', ['0'])[0])
     
     applied_facets = {}
@@ -39,9 +45,13 @@ def scrape_nvidia(url: str) -> List[Dict[str, str]]:
             applied_facets[k] = v
 
     jobs = []
+    seen_urls = set()
     limit = 20
+    max_pages = 50
+    pages_fetched = 0
+    total_available = None  # Will be set from first page only
     
-    while True:
+    while pages_fetched < max_pages:
         print(f"[NVIDIA] Fetching offset {current_offset}...")
         
         payload = {
@@ -61,17 +71,30 @@ def scrape_nvidia(url: str) -> List[Dict[str, str]]:
             data = response.json()
             job_postings = data.get('jobPostings', [])
             
-            # --- PAGINATION LOGIC ---
+            # Capture total from first page only
+            if total_available is None:
+                total_available = data.get('total', 0)
+                print(f"[NVIDIA] Total jobs available: {total_available}")
+            
             # Stop if the list is empty
             if not job_postings:
                 print("[NVIDIA] No more jobs returned (empty list). Stopping.")
                 break
-                
+            
+            new_jobs_count = 0
+            
             for post in job_postings:
                 title = post.get('title')
                 external_path = post.get('externalPath')
                 full_url = f"https://{parsed_url.netloc}/{site_name}{external_path}"
                 location = post.get('locationsText')
+                
+                # Deduplication check
+                if full_url in seen_urls:
+                    continue
+                
+                seen_urls.add(full_url)
+                new_jobs_count += 1
                 
                 jobs.append({
                     'title': title,
@@ -79,14 +102,27 @@ def scrape_nvidia(url: str) -> List[Dict[str, str]]:
                     'location': location
                 })
             
-            # If we received fewer items than the limit (e.g., asked for 20, got 5),
-            # we know this is the last page.
+            print(f"[NVIDIA] Page returned {len(job_postings)} jobs, {new_jobs_count} new (Total: {len(jobs)}/{total_available})")
+            
+            # Stop conditions:
+            # 1. No new unique jobs found (all duplicates)
+            if new_jobs_count == 0:
+                print("[NVIDIA] No new unique jobs found. Stopping.")
+                break
+            
+            # 2. Received fewer items than limit (last page)
             if len(job_postings) < limit:
                 print(f"[NVIDIA] Reached last page (got {len(job_postings)} items).")
+                break
+            
+            # 3. We've collected all available jobs
+            if len(jobs) >= total_available:
+                print(f"[NVIDIA] Collected all {total_available} available jobs.")
                 break
                 
             # Move to next page
             current_offset += limit
+            pages_fetched += 1
             time.sleep(1)
             
         except Exception as e:
@@ -95,4 +131,3 @@ def scrape_nvidia(url: str) -> List[Dict[str, str]]:
 
     print(f"[NVIDIA] Total jobs scraped: {len(jobs)}")
     return jobs
-

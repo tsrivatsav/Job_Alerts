@@ -10,12 +10,12 @@ table = dynamodb.Table('job_scraper_companies')
 COMPANIES = [
     {
         'company_name': 'Anthropic',
-        'url': 'https://www.anthropic.com/careers/jobs',
+        'url': 'https://job-boards.greenhouse.io/anthropic/?departments%5B%5D=4002061008&departments%5B%5D=4010154008&departments%5B%5D=4050633008&departments%5B%5D=4019632008&offices%5B%5D=4039647008&offices%5B%5D=4001219008&offices%5B%5D=4008537008&offices%5B%5D=4001218008&offices%5B%5D=4011228008&offices%5B%5D=4001217008',
         'check': 'Yes'
     },
     {
         'company_name': 'OpenAI',
-        'url': 'https://openai.com/careers/search/?l=07ed9191-5bc6-421b-9883-f1ac2e276ad7%2Ce8062547-b090-4206-8f1e-7329e0014e98%2Cbbd9f7fe-aae5-476a-9108-f25aea8f6cd2%2C16c48b76-8036-4fe3-a18f-e9d357395713%2C6252b4ed-714d-469a-a970-7a13101bac9d&c=ab2b9da4-24a4-47df-8bed-1ed5a39c7036%2C86a66e6f-8ddc-493d-b71f-2f6f6d2769a6%2Ce2a6a756-466b-4b91-be68-bb0c96102de1%2C6dd4a467-446d-4093-8d57-d4633a571123%2Cd36236ec-fb74-49bd-bd3f-9d8365e2e2cb%2C18ad45e4-3e90-44b9-abc6-60b2df26b03e%2C27c9a852-c401-450e-9480-d3b507b8f64a%2C0f06f916-a404-414f-813f-6ac7ff781c61%2C3345bedf-45ec-4ae1-ad44-b0affc79bcb5%2C0c0f1511-91d1-4317-a68a-52ec2f849450%2C224d99ae-26ec-4751-8af3-ed7d104b60a2%2Cfb2b77c5-5f20-4a93-a1c4-c3d640d88e04',
+        'url': 'https://jobs.ashbyhq.com/openai',
         'check': 'Yes'
     },
     {
@@ -25,7 +25,7 @@ COMPANIES = [
     },
     {
         'company_name': 'xAI',
-        'url': 'https://x.ai/careers/open-roles?location=palo+alto%252C+ca,memphis%252C+tn,san+francisco%252C+ca,new+york%252C+ny,bastrop%252C+tx,los+angeles%252C+ca,washington%252C+d.c.,southaven%252C+ms,san+jose%252C+ca,seattle%252C+wa,bay+area%252C+ca,remote&dept=4024733007,4062428007,4046295007,4052172007,4046294007',
+        'url': 'https://job-boards.greenhouse.io/xai/',
         'check': 'Yes' 
     },
     {

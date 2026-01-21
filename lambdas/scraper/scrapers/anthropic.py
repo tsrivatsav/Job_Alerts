@@ -1,61 +1,133 @@
-from datetime import datetime
 from typing import List, Dict, Any
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, parse_qs
+import time
 
 def scrape_anthropic(url: str) -> List[Dict[str, str]]:
     """
-    Anthropic scraping logic.
+    Scraper for Anthropic (Greenhouse).
+    Handles list parameters (departments[], offices[]) correctly.
     """
-    print(f"Anthropic Scraping: {url}")
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
+    print(f"[Anthropic] Scraping: {url}")
     
-    response = requests.get(url, headers=headers, timeout=30)
-    response.raise_for_status()
+    session = requests.Session()
+    # Headers - REMOVED Accept-Encoding to let requests handle it automatically
+    session.headers.update({
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'max-age=0',
+        'Sec-Ch-Ua': '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+    })
+
+    # 1. Parse Input URL
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
     
-    soup = BeautifulSoup(response.text, 'html.parser')
+    # Keep the full list for each key (departments[], offices[], etc.)
+    params = query_params.copy()
     
-    jobs = []
+    # Handle pagination
+    start_page = int(params.get('page', ['1'])[0])
+    if 'page' in params:
+        del params['page']
+        
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
     
-    # Find all job listing links
-    # They have href starting with /careers/jobs/
-    job_links = soup.find_all('a', href=lambda x: x and x.startswith('/careers/jobs/'))
+    all_jobs = []
+    seen_urls = set()
+    current_page = start_page
     
-    for job_link in job_links:
+    MAX_PAGES = 10
+    
+    for _ in range(MAX_PAGES):
+        print(f"[Anthropic] Fetching page {current_page}...")
+        
+        # Add page param
+        request_params = params.copy()
+        request_params['page'] = str(current_page)
+        
         try:
-            # Extract job title from the jobRole div
-            job_role_div = job_link.find('div', class_=lambda x: x and 'jobRole' in x)
-            if not job_role_div:
-                continue
+            response = session.get(base_url, params=request_params, timeout=30)
+            
+            if response.status_code != 200:
+                print(f"[Anthropic] Error {response.status_code}")
+                break
+            
+            # Use response.text (requests automatically decodes)
+            # If still having issues, try response.content.decode('utf-8')
+            html_content = response.content.decode('utf-8', errors='replace')
+            soup = BeautifulSoup(html_content, 'html.parser')
+            # Find job rows
+            job_rows = soup.find_all('tr', class_='job-post')
+            
+            if not job_rows:
+                print(f"[Anthropic] No jobs found on page {current_page}. Stopping.")
+                break
+            
+            new_jobs_count = 0
+            
+            for row in job_rows:
+                try:
+                    cell = row.find('td', class_='cell')
+                    if not cell:
+                        continue
+                        
+                    link = cell.find('a')
+                    if not link:
+                        continue
+                    
+                    href = link.get('href')
+                    if not href:
+                        continue
+                        
+                    if href.startswith('http'):
+                        full_url = href
+                    else:
+                        full_url = f"https://job-boards.greenhouse.io{href}"
+                    
+                    if full_url in seen_urls:
+                        continue
+                    seen_urls.add(full_url)
+                    
+                    title_elem = link.find('p', class_=lambda x: x and 'body--medium' in x)
+                    title = title_elem.get_text(strip=True) if title_elem else "Unknown"
+                    
+                    loc_elem = link.find('p', class_=lambda x: x and 'body--metadata' in x)
+                    location = loc_elem.get_text(strip=True) if loc_elem else "Not specified"
+                    
+                    
+                    all_jobs.append({
+                        'title': title,
+                        'url': full_url,
+                        'location': location
+                    })
+                    new_jobs_count += 1
+                    
+                except Exception as e:
+                    print(f"[Anthropic] Error parsing row: {e}")
+                    continue
+            
+            print(f"[Anthropic] Found {new_jobs_count} new jobs on page {current_page}.")
+            
+            if new_jobs_count == 0:
+                print("[Anthropic] No unique jobs found. Pagination likely finished.")
+                break
                 
-            title_elem = job_role_div.find('p')
-            if not title_elem:
-                continue
-            
-            title = title_elem.get_text(strip=True)
-            
-            # Build full URL
-            relative_url = job_link['href']
-            full_url = f"https://www.anthropic.com{relative_url}"
-            
-            # Extract location
-            location = None
-            job_location_div = job_link.find('div', class_=lambda x: x and 'jobLocation' in x)
-            if job_location_div:
-                location_elem = job_location_div.find('p')
-                if location_elem:
-                    location = location_elem.get_text(strip=True)
-            
-            jobs.append({
-                'title': title,
-                'url': full_url,
-                'location': location
-            })
+            current_page += 1
+            time.sleep(1)
             
         except Exception as e:
-            print(f"Error parsing job listing: {e}")
-            continue
-    print(f"[Anthropic] Found {len(jobs)} jobs")
-    return jobs
+            print(f"[Anthropic] Request failed: {e}")
+            break
+
+    print(f"[Anthropic] Total jobs found: {len(all_jobs)}")
+    return all_jobs
