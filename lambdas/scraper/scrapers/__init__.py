@@ -12,7 +12,7 @@ from .jane_street import scrape_jane_street
 from .citadel import scrape_citadel
 from .two_sigma import scrape_two_sigma
 from .point72 import scrape_point72
-from .renaissance import scrape_renaissance
+from .renaissance import scrape_rentech
 from .ssi import scrape_ssi
 from .thinking_machines import scrape_thinking_machines
 from .perplexity import scrape_perplexity
