@@ -3,10 +3,4 @@ requests
 beautifulsoup4
 lxml
 cloudscraper
-urllib
-html
-json
-re
-time
-ast
 curl_cffi

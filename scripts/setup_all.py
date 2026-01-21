@@ -16,14 +16,6 @@ def run_script(script_name):
     result = subprocess.run([sys.executable, script_name], capture_output=False)
     return result.returncode == 0
 
-def run_shell(script_name):
-    """Run a shell script"""
-    print(f"\n{'='*50}")
-    print(f"Running: {script_name}")
-    print('='*50)
-    result = subprocess.run(['bash', script_name], capture_output=False)
-    return result.returncode == 0
-
 def main():
     print("🚀 Starting Job Scraper Setup")
     print("="*50)
@@ -51,7 +43,7 @@ def main():
     time.sleep(15)
     
     # Step 4: Deploy Lambda functions
-    if not run_shell('deploy_lambdas.sh'):
+    if not run_script('deploy_lambdas.py'):
         print("❌ Failed to deploy Lambdas")
         return
     
