@@ -42,6 +42,21 @@ from .tower import scrape_tower
 from .optiver import scrape_optiver
 from .deshaw import scrape_deshaw
 from .xtx import scrape_xtx
+from .magic import scrape_magic
+from .pi import scrape_pi
+from .liquid import scrape_liquid
+from .cartesia import scrape_cartesia
+from ._1x import scrape_1x
+from .luma import scrape_luma
+from .suno import scrape_suno
+from .exa import scrape_exa
+from .boston_dynamics import scrape_boston_dynamics
+from .covariant import scrape_covariant
+from .twelve_labs import scrape_twelve_labs
+from .phaidra import scrape_phaidra
+from .runway import scrape_runway
+from .isomorphic_labs import scrape_isomorphic_labs
+from .humans import scrape_humans
 
 
 SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
@@ -83,6 +98,21 @@ SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
     'Optiver': scrape_optiver,
     'DE Shaw': scrape_deshaw,
     'XTX': scrape_xtx,
+    'Magic': scrape_magic,
+    'Physical Intelligence': scrape_pi,
+    'Liquid': scrape_liquid,
+    'Cartesia': scrape_cartesia,
+    '1X': scrape_1x,
+    'Luma': scrape_luma,
+    'Suno': scrape_suno,
+    'Exa': scrape_exa,
+    'Boston Dynamics': scrape_boston_dynamics,
+    'Covariant': scrape_covariant,
+    'Twelve Labs': scrape_twelve_labs,
+    'Phaidra': scrape_phaidra,
+    'Runway': scrape_runway,
+    'Isomorphic Labs': scrape_isomorphic_labs,
+    'Humans&': scrape_humans,
 }
 
 

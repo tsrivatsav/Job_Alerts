@@ -198,6 +198,81 @@ COMPANIES = [
         'url': 'https://api.xtxcareers.com/jobs.json',
         'check': 'Yes' 
     },
+    {
+        'company_name': 'Magic',
+        'url': 'https://magic.dev/careers',
+        'check': 'Yes' 
+    },
+    {
+        'company_name': 'Physical Intelligence',
+        'url': 'https://jobs.ashbyhq.com/physicalintelligence',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Liquid',
+        'url': 'https://jobs.ashbyhq.com/liquid-ai',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Cartesia',
+        'url': 'https://jobs.ashbyhq.com/cartesia',
+        'check': 'Yes'
+    },
+    {
+        'company_name': '1X',
+        'url': 'https://www.1x.tech/careers',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Luma',
+        'url': 'https://jobs.gem.com/lumalabs-ai',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Suno',
+        'url': 'https://jobs.ashbyhq.com/suno',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Exa',
+        'url': 'https://jobs.ashbyhq.com/exa',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Boston Dynamics',
+        'url': 'https://bostondynamics.wd1.myworkdayjobs.com/Boston_Dynamics/?timeType=2ea36fadc45601e65397a3a4024b5800&jobFamily=53a69875bf3e016500549dba1005eb07',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Covariant',
+        'url': 'https://covariant.ai/careers/',
+        'check': 'No'
+    },
+    {
+        'company_name': 'Twelve Labs',
+        'url': 'https://jobs.ashbyhq.com/twelve-labs',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Phaidra',
+        'url': 'https://job-boards.greenhouse.io/phaidra',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Runway',
+        'url': 'https://job-boards.greenhouse.io/runwayml?departments%5B%5D=4010359005&departments%5B%5D=4142366005&departments%5B%5D=4011161005',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Isomorphic Labs',
+        'url': 'https://job-boards.greenhouse.io/isomorphiclabs',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Humans&',
+        'url': 'https://jobs.ashbyhq.com/humans-and/3daf12ad-471f-43ba-b940-8552e9ad61aa',
+        'check': 'No'
+    }
 ]
 
 def seed_companies():
