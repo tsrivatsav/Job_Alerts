@@ -70,17 +70,17 @@ def lambda_handler(event, context):
         print(f"Error scraping {company_name}: {str(e)}")
         raise
 
-
 def send_notification(company_name: str, new_jobs: List[Dict[str, str]]) -> None:
+    """Sends SNS notification for new job postings."""
     if not SNS_TOPIC_ARN:
         print("Warning: SNS_TOPIC_ARN not configured, skipping notification")
         return
-    
+
     job_list = "\n".join([
-        f"• {job['title']}\n  {job['url']}\n  {job.get('location', 'Not specified')}" 
+        f"• {job['title']}\n  {job['url']}\n  {job.get('location', 'Not specified')}"
         for job in new_jobs
     ])
-    
+
     message = f"""
 🚨 New Job Postings Found!
 
@@ -92,34 +92,7 @@ New Positions: {len(new_jobs)}
 ---
 Discovered at: {datetime.utcnow().isoformat()} UTC
     """.strip()
-    
-    sns.publish(
-        TopicArn=SNS_TOPIC_ARN,
-        Message=message,
-        Subject=f'🆕 {len(new_jobs)} New Job(s) at {company_name}'
-    )
-    """
-    Sends SNS notification for new job postings.
-    """
-    if not SNS_TOPIC_ARN:
-        print("Warning: SNS_TOPIC_ARN not configured, skipping notification")
-        return
-    
-    # Format job list
-    job_list = "\n".join([f"• {job['title']}\n  {job['url']}\n  {job['location']}" for job in new_jobs])
-    
-    message = f"""
-    🚨 New Job Postings Found!
 
-    Company: {company_name}
-    New Positions: {len(new_jobs)}
-
-    {job_list}
-
-    ---
-    Discovered at: {datetime.utcnow().isoformat()} UTC
-    """.strip()
-    
     sns.publish(
         TopicArn=SNS_TOPIC_ARN,
         Message=message,
