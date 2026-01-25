@@ -18,11 +18,11 @@ def create_schedule():
     # Create rule (runs at 9 AM UTC daily)
     # Modify the cron expression as needed
     response = events.put_rule(
-        Name=rule_name,
-        ScheduleExpression='cron(0 9 * * ? *)',  # 9 AM UTC daily
-        State='ENABLED',
-        Description='Triggers job scraper orchestrator daily'
-    )
+    Name=rule_name,
+    ScheduleExpression='cron(0 13,18,23 * * ? *)',  # 1PM, 6PM, 11PM UTC daily
+    State='ENABLED',
+    Description='Triggers job scraper orchestrator daily at 13:00, 18:00, 23:00 UTC'
+)
     
     rule_arn = response['RuleArn']
     print(f"✅ Created EventBridge rule: {rule_name}")
@@ -59,5 +59,5 @@ def create_schedule():
 if __name__ == '__main__':
     print("Creating EventBridge schedule...")
     create_schedule()
-    print("\n🎉 Schedule created! The scraper will run daily at 9 AM UTC")
+    print("\n🎉 Schedule created! The scraper will run daily at 1PM, 6PM, and 11PM UTC")
     print("   To change the schedule, modify the cron expression in this script")

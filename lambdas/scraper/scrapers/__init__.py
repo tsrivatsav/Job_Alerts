@@ -57,6 +57,11 @@ from .phaidra import scrape_phaidra
 from .runway import scrape_runway
 from .isomorphic_labs import scrape_isomorphic_labs
 from .humans import scrape_humans
+from .coinbase import scrape_coinbase
+from .adobe import scrape_adobe
+from .world_labs import scrape_world_labs
+from .ami_labs import scrape_ami_labs
+from .robinhood import scrape_robinhood
 
 
 SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
@@ -113,6 +118,11 @@ SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
     'Runway': scrape_runway,
     'Isomorphic Labs': scrape_isomorphic_labs,
     'Humans&': scrape_humans,
+    'Coinbase': scrape_coinbase,
+    'Adobe': scrape_adobe,
+    'World Labs': scrape_world_labs,
+    'AMI Labs': scrape_ami_labs,
+    'Robinhood': scrape_robinhood,
 }
 
 

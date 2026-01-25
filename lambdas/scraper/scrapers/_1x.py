@@ -66,8 +66,7 @@ def scrape_1x(
                 {
                     "title": title,
                     "url": href,
-                    "location": location,
-                    "department": dept,
+                    "location": location
                 }
             )
 

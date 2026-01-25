@@ -272,6 +272,31 @@ COMPANIES = [
         'company_name': 'Humans&',
         'url': 'https://jobs.ashbyhq.com/humans-and/3daf12ad-471f-43ba-b940-8552e9ad61aa',
         'check': 'No'
+    },
+    {
+        'company_name': 'Coinbase',
+        'url': 'https://job-boards.greenhouse.io/coinbase',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'Adobe',
+        'url': 'https://careers.adobe.com/us/en/c/research-jobs',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'World Labs',
+        'url': 'https://job-boards.greenhouse.io/worldlabs',
+        'check': 'Yes'
+    },
+    {
+        'company_name': 'AMI Labs',
+        'url': 'hiring@amilabs.xyz',
+        'check': 'No'
+    },
+    {
+        'company_name': 'Robinhood',
+        'url': 'https://api.greenhouse.io/v1/boards/robinhood/jobs',
+        'check': 'Yes'
     }
 ]
 
