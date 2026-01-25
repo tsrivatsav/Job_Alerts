@@ -135,3 +135,4 @@ def scrape_adobe(
     results = list({x["url"]: x for x in results if x.get("url")}.values())
     print(f"Scraped {len(results)} Adobe jobs.")
     return results
+

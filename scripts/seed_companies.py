@@ -280,7 +280,7 @@ COMPANIES = [
     },
     {
         'company_name': 'Adobe',
-        'url': 'https://careers.adobe.com/us/en/c/research-jobs',
+        'url': 'https://careers.adobe.com/widgets',
         'check': 'Yes'
     },
     {
