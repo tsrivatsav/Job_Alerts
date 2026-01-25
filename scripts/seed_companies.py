@@ -297,6 +297,11 @@ COMPANIES = [
         'company_name': 'Robinhood',
         'url': 'https://api.greenhouse.io/v1/boards/robinhood/jobs',
         'check': 'Yes'
+    },
+    {
+        'company_name': 'Airbnb',
+        'url': 'https://careers.airbnb.com/positions/?_offices=united-states&_workplace_type=live-and-work-anywhere&_jobs_sort=updated_at&_paged=1',
+        'check': 'Yes'
     }
 ]
 

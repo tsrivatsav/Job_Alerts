@@ -62,6 +62,7 @@ from .adobe import scrape_adobe
 from .world_labs import scrape_world_labs
 from .ami_labs import scrape_ami_labs
 from .robinhood import scrape_robinhood
+from .airbnb import scrape_airbnb
 
 
 SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
@@ -123,6 +124,7 @@ SCRAPERS: Dict[str, Callable[[str], List[Dict[str, str]]]] = {
     'World Labs': scrape_world_labs,
     'AMI Labs': scrape_ami_labs,
     'Robinhood': scrape_robinhood,
+    'Airbnb': scrape_airbnb,
 }
 
 
