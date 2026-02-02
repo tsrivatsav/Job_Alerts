@@ -10,23 +10,25 @@ sts = boto3.client('sts')
 ACCOUNT_ID = sts.get_caller_identity()['Account']
 
 def create_schedule():
-    """Create EventBridge rule to trigger orchestrator daily"""
+    """Create EventBridge rule to trigger orchestrator at specified UTC hours"""
     
     rule_name = 'job-scraper-daily-trigger'
     lambda_arn = f'arn:aws:lambda:{REGION}:{ACCOUNT_ID}:function:job-scraper-orchestrator'
     
-    # Create rule (runs at 9 AM UTC daily)
-    # Modify the cron expression as needed
+    # Updated cron expression: 1, 13, 16, 19, 22 represent the hours in UTC
+    schedule_expression = 'cron(0 1,13,16,19,22 * * ? *)'
+    
+    # Create rule
     response = events.put_rule(
-    Name=rule_name,
-    ScheduleExpression='cron(0 13,18,23 * * ? *)',  # 1PM, 6PM, 11PM UTC daily
-    State='ENABLED',
-    Description='Triggers job scraper orchestrator daily at 13:00, 18:00, 23:00 UTC'
-)
+        Name=rule_name,
+        ScheduleExpression=schedule_expression,
+        State='ENABLED',
+        Description='Triggers job scraper at 1AM, 1PM, 4PM, 7PM, and 10PM UTC'
+    )
     
     rule_arn = response['RuleArn']
     print(f"✅ Created EventBridge rule: {rule_name}")
-    print(f"   Schedule: 9 AM UTC daily")
+    print(f"   Schedule: {schedule_expression}")
     
     # Add Lambda as target
     events.put_targets(
@@ -57,7 +59,6 @@ def create_schedule():
 
 
 if __name__ == '__main__':
-    print("Creating EventBridge schedule...")
+    print("Updating EventBridge schedule...")
     create_schedule()
-    print("\n🎉 Schedule created! The scraper will run daily at 1PM, 6PM, and 11PM UTC")
-    print("   To change the schedule, modify the cron expression in this script")
+    print("\n🎉 Schedule updated! The scraper will run at 1AM, 1PM, 4PM, 7PM, and 10PM UTC")
